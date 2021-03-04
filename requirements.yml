@@ -1,0 +1,8 @@
+name: mdn
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.7
+  - django
+prefix: /Users/ykh/anaconda3/envs/mdn
