@@ -1,5 +1,7 @@
 import uuid
+from datetime import date
 
+from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
 
@@ -56,6 +58,7 @@ class BookInstance(models.Model):
     # 책 인스턴스는 한개의 책을 갖고있고, 책은 여러개의 책 인스턴스를 가질 수 있으므로 다대일
     book = models.ForeignKey('Book', on_delete=models.SET_NULL, null=True)
     imprint = models.CharField(max_length=200)
+    borrower = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     due_back = models.DateField(null=True, blank=True)
 
     LOAN_STATUS = (
@@ -75,9 +78,16 @@ class BookInstance(models.Model):
 
     class Meta:
         ordering = ['due_back']
+        permissions = (('can_mark_returned', 'Set book as returned'),)
 
     def __str__(self):
         return f'{self.id} ({self.book.title})'
+
+    @property
+    def is_overdue(self):
+        if self.due_back and date.today() > self.due_back:
+            return True
+        return False
 
 
 class Language(models.Model):
